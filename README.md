@@ -18,6 +18,11 @@ Activate the virtual environment
 ```sh
 $ pipenv shell
 ```
+Then
+
+```sh
+$ pipenv install
+```
 
 Run server
 

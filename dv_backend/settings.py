@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'dv_db',
         'USER': 'dvuser',
         'PASSWORD': 'dv2022',
-        'HOST': 'dv.cpzqoyxyhoka.us-east-2.rds.amazonaws.com',  #### production
+        'HOST': 'dvprj.cpzqoyxyhoka.us-east-2.rds.amazonaws.com',  #### production
         'PORT': '3306',
         'OPTIONS': {'charset': 'utf8mb4'},
     }

@@ -20,7 +20,7 @@ def test(request):
     response = {"Success": False}
     try:
 
-        tracker_top10 = Location.objects.all()[:10]
+        tracker_top10 = Location.objects.all()[:3]
         serializer = LocationSerializer(tracker_top10, many=True)
 
         response["data"] = serializer.data

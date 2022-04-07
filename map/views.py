@@ -79,7 +79,7 @@ def getLocationBySpan(request):
 def heart_beat(data=''):
     while True:
         time.sleep(1)
-        yield f'sys_time: {datetime.datetime.now()}, {data}\n'
+        yield f'data: {datetime.datetime.now()}, {data}\n\n'
 
 
 def stream_event(time_limit):
@@ -104,8 +104,8 @@ def stream_event(time_limit):
         time_locations_data = LocationSerializer(time_locations, many=True).data
         
         time_idx += 1
-        
-        yield f'{json.dumps(time_locations_data)}\n\n'
+        print(f'data: {json.dumps(time_locations_data)}\n\n')
+        yield f'data: {json.dumps(time_locations_data)}\n\n'
 
 
 @api_view(['GET'])
@@ -113,7 +113,8 @@ def sse_test(request):
     return StreamingHttpResponse(heart_beat(), content_type='text/event-stream')
 
 
-@api_view(['GET'])
+# @api_view(['GET'])
 def sse(request):
+    print('sse')
     limit = int(request.GET.get('limit', 100))
     return StreamingHttpResponse(stream_event(limit), content_type='text/event-stream')

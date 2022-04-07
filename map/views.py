@@ -82,7 +82,7 @@ def heart_beat(data=''):
         yield f'sys_time: {datetime.datetime.now()}, {data}\n'
 
 
-def stream_event(time_limit=5):
+def stream_event(time_limit):
     trackers = Location.objects \
         .values('tracker_id') \
         .annotate(max_time=Max('time'))[:limit] 
@@ -94,7 +94,7 @@ def stream_event(time_limit=5):
     time_idx = 0
     time_len = len(query)
     while True:
-        time.sleep(3)
+        time.sleep(1)
         if time_idx == time_len:
             time_idx = 0
 
@@ -105,7 +105,7 @@ def stream_event(time_limit=5):
         
         time_idx += 1
         
-        yield f'tracker_locations: {time_locations_data}\n\n'
+        yield f'{json.dumps(time_locations_data)}\n\n'
 
 
 @api_view(['GET'])
@@ -115,4 +115,5 @@ def sse_test(request):
 
 @api_view(['GET'])
 def sse(request):
-    return StreamingHttpResponse(stream_event(), content_type='text/event-stream')
+    limit = int(request.GET.get('limit', 100))
+    return StreamingHttpResponse(stream_event(limit), content_type='text/event-stream')

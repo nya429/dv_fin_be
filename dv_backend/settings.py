@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-3@7uh&53%hgrn8hsgo*u&oy$wrc$05u7f+w&*=#ae+jz40wqy=
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
     "prod22.us-east-2.elasticbeanstalk.com"
 ]
 
@@ -89,7 +91,8 @@ DATABASES = {
         'NAME': 'dv_db',
         'USER': 'dvuser',
         'PASSWORD': 'dv2022',
-        'HOST': 'dvprj.cpzqoyxyhoka.us-east-2.rds.amazonaws.com',  #### production
+        # 'HOST': 'dvprj.cpzqoyxyhoka.us-east-2.rds.amazonaws.com',  #### production
+        'HOST': 'localhost',  #### local
         'PORT': '3306',
         'OPTIONS': {'charset': 'utf8mb4'},
     }

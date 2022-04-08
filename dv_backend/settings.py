@@ -89,8 +89,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dv_db',
-        'USER': 'dvuser',
-        'PASSWORD': 'dv2022',
+        'USER': 'root',
+        'PASSWORD': 'Ssj847371SYN!',
         # 'HOST': 'dvprj.cpzqoyxyhoka.us-east-2.rds.amazonaws.com',  #### production
         'HOST': 'localhost',  #### local
         'PORT': '3306',

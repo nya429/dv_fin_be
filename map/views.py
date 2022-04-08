@@ -16,16 +16,57 @@ import time
 # Create your views here.
 limit = 15
 
+"""
+corners: TL, TR, BL, BR
+"""
+
+ZONE = [
+    {
+        'id': 1,
+        'corners': [[5,3],[5,4],[16,3],[16,4]]
+    },
+    {
+        'id': 2,
+        'corners': [[5,8],[5,9],[16,8],[16,9]]
+    },
+    {
+        'id': 3,
+        'corners': [[5,13],[5,14],[16,13],[16,14]]
+    },
+    {
+        'id': 4,
+        'corners': [[5,18],[5,19],[16,18],[16,19]]
+    }
+]
+
+def get_ZONE(location, size):
+    zone_id = None
+    i = 0
+    while i < 4:
+        temp = ZONE[i]
+        print(temp['corners'][2][0])
+        if temp['corners'][0][0] - size < location['loc_y'] < temp['corners'][2][0] + size and temp['corners'][0][1] - size < location['loc_x'] < temp['corners'][1][1] + size:
+            zone_id = i + 1
+            break
+        i += 1
+    print(zone_id)
+    return zone_id
+
+
 @api_view(['GET'])
 def test(request):
     # data = json.loads(request.body)
     response = {"Success": False}
     try:
 
-        tracker_top10 = Location.objects.all()[:3]
+        tracker_top10 = Location.objects.all()[:100]
         serializer = LocationSerializer(tracker_top10, many=True)
-
-        response["data"] = serializer.data
+        location_list = serializer.data
+       
+        for location in location_list:
+            location['product_id'] = get_ZONE(location, 1)
+            
+        response["data"] = location_list
         response["Success"] = True
 
         return Response(response)
@@ -41,10 +82,10 @@ def getLastActive(request):
     try:
         query = Location.objects \
             .values('tracker_id') \
-            .annotate(max_time=Max('time'))[:limit] \
-
+            .annotate(max_time=Max('time'))[:limit] 
+        print(query)
         serializer = LocationSerializer(query, many=True)
-
+        print(serializer.data)
         response["data"] = serializer.data
         response["Success"] = True
 
@@ -52,7 +93,9 @@ def getLastActive(request):
     except Exception as e:
         return Response(response)
 
-
+"""
+    get location by tracker id
+"""
 @api_view(['POST'])
 def getLocationBySpan(request):
     data = json.loads(request.body)
@@ -66,7 +109,11 @@ def getLocationBySpan(request):
             .filter(tracker_id=tracker_id)[:60]
 
         serializer = LocationSerializer(query, many=True)
-
+        
+        location_list = serializer.data
+        for location in location_list:
+            zone_id = get_ZONE(location)
+        
         response["data"] = serializer.data
         response["Success"] = True
 

@@ -44,7 +44,6 @@ def get_ZONE(location, size):
     i = 0
     while i < 4:
         temp = ZONE[i]
-        print(temp['corners'][2][0])
         if temp['corners'][0][0] - size < location['loc_y'] < temp['corners'][2][0] + size and temp['corners'][0][1] - size < location['loc_x'] < temp['corners'][1][1] + size:
             zone_id = i + 1
             break

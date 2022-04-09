@@ -143,4 +143,4 @@ GitHub.sublime-settings
 .history
 
 # database
-**.settings.py
+**/settings.py

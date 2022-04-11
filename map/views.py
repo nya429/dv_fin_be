@@ -39,16 +39,16 @@ ZONE = [
     }
 ]
 
-def get_ZONE(location, size):
+def get_ZONE(location, size=1):
     zone_id = None
     i = 0
     while i < 4:
         temp = ZONE[i]
-        if temp['corners'][0][0] - size < location['loc_y'] < temp['corners'][2][0] + size and temp['corners'][0][1] - size < location['loc_x'] < temp['corners'][1][1] + size:
+        if temp['corners'][0][0] - size < location['loc_y'] < temp['corners'][2][0]   + size and \
+        temp['corners'][0][1] - size < location['loc_x'] < temp['corners'][1][1] + size:
             zone_id = i + 1
             break
         i += 1
-    print(zone_id)
     return zone_id
 
 
@@ -82,9 +82,7 @@ def getLastActive(request):
         query = Location.objects \
             .values('tracker_id') \
             .annotate(max_time=Max('time'))[:limit] 
-        print(query)
         serializer = LocationSerializer(query, many=True)
-        print(serializer.data)
         response["data"] = serializer.data
         response["Success"] = True
 
@@ -105,15 +103,14 @@ def getLocationBySpan(request):
 
     try:
         query = Location.objects \
-            .filter(tracker_id=tracker_id)[:60]
+            .filter(tracker_id=tracker_id)[:120]
 
         serializer = LocationSerializer(query, many=True)
         
         location_list = serializer.data
         for location in location_list:
-            zone_id = get_ZONE(location)
-        
-        response["data"] = serializer.data
+            location.product_id = get_ZONE(location)
+        response["data"] = location_list
         response["Success"] = True
 
         return Response(response)

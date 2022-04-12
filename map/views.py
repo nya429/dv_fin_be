@@ -40,7 +40,7 @@ ZONE = [
 ]
 
 def get_ZONE(location, size=1):
-    zone_id = None
+    zone_id = 0
     i = 0
     while i < 4:
         temp = ZONE[i]
@@ -103,7 +103,7 @@ def getLocationBySpan(request):
 
     try:
         query = Location.objects \
-            .filter(tracker_id=tracker_id)[:300]
+            .filter(tracker_id=tracker_id)[:120]
 
         serializer = LocationSerializer(query, many=True)
         
@@ -143,11 +143,17 @@ def stream_event(time_limit):
 
         time_stamp = query[time_idx]['time']
         time_locations = Location.objects.filter(time=time_stamp, tracker_id__in=tracker_ids)\
-            .values('tracker_id', 'loc_x', 'loc_y', 'time')
+            .values('tracker_id', 'loc_x', 'loc_y', 'time', 'product_id')
+        length = len(time_locations)
+        while length > 0:
+            _zone_id = get_ZONE(time_locations[length - 1])
+            time_locations[length - 1]['product_id'] = _zone_id
+            print(time_locations[length - 1])
+            length = length - 1
+
         time_locations_data = LocationSerializer(time_locations, many=True).data
         
         time_idx += 1
-        print(f'data: {json.dumps(time_locations_data)}\n\n')
         yield f'data: {json.dumps(time_locations_data)}\n\n'
 
 

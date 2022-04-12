@@ -103,7 +103,7 @@ def getLocationBySpan(request):
 
     try:
         query = Location.objects \
-            .filter(tracker_id=tracker_id)[:120]
+            .filter(tracker_id=tracker_id)[:300]
 
         serializer = LocationSerializer(query, many=True)
         

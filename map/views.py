@@ -39,16 +39,16 @@ ZONE = [
     }
 ]
 
-def get_ZONE(location, size=1):
+def get_ZONE(location, size):
+    # print('enter get_ZONE', location, 'size', size)
     zone_id = 0
-    i = 0
-    while i < 4:
-        temp = ZONE[i]
-        if temp['corners'][0][0] - size < location['loc_y'] < temp['corners'][2][0]   + size and \
-        temp['corners'][0][1] - size < location['loc_x'] < temp['corners'][1][1] + size:
-            zone_id = i + 1
-            break
-        i += 1
+    length = len(ZONE)
+    print(ZONE[3]['corners'][1][1])
+    while length > 0:
+        if (ZONE[length - 1]['corners'][0][0] - size) < location['loc_y'] < (ZONE[length - 1]['corners'][2][0] + size) and (ZONE[length - 1]['corners'][0][1] - size) < location['loc_x'] < (ZONE[length - 1]['corners'][1][1] + size):
+            zone_id = ZONE[length - 1]['id']
+        length = length - 1
+    
     return zone_id
 
 
@@ -110,6 +110,7 @@ def getLocationBySpan(request):
         location_list = serializer.data
         for location in location_list:
             location.product_id = get_ZONE(location)
+            print(location.product_id)
         response["data"] = location_list
         response["Success"] = True
 
@@ -145,11 +146,9 @@ def stream_event(time_limit):
         time_locations = Location.objects.filter(time=time_stamp, tracker_id__in=tracker_ids)\
             .values('tracker_id', 'loc_x', 'loc_y', 'time', 'product_id')
         length = len(time_locations)
-        while length > 0:
-            _zone_id = get_ZONE(time_locations[length - 1])
-            time_locations[length - 1]['product_id'] = _zone_id
-            print(time_locations[length - 1])
-            length = length - 1
+        for item in time_locations:
+            item['product_id'] = get_ZONE(item, 1)
+            print(item['product_id'])
 
         time_locations_data = LocationSerializer(time_locations, many=True).data
         

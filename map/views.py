@@ -45,7 +45,7 @@ def get_ZONE(location, size):
     length = len(ZONE)
     print('x', location['loc_x'], 'y', location['loc_y'])
     while length > 0:
-        if (ZONE[length - 1]['corners'][0][0] - size) < location['loc_x'] < (ZONE[length - 1]['corners'][2][0] + size) and (ZONE[length - 1]['corners'][0][1] - size) < location['loc_y'] < (ZONE[length - 1]['corners'][1][1] + size):
+        if (ZONE[length - 1]['corners'][0][0] - size) <= location['loc_y'] <= (ZONE[length - 1]['corners'][2][0] + size) and (ZONE[length - 1]['corners'][0][1] - size) <= location['loc_x'] <= (ZONE[length - 1]['corners'][1][1] + size):
             zone_id = ZONE[length - 1]['id']
         length = length - 1
     

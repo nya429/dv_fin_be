@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    "prod22.us-east-2.elasticbeanstalk.com"
+    'dv-backend2-dev.us-east-2.elasticbeanstalk.com'
 ]
 
 

@@ -9,7 +9,6 @@ djangorestframework = "*"
 pillow = "*"
 django-cors-headers = "*"
 django-rest-auth = "*"
-django-allauth = "*"
 mysqlclient = "*"
 
 [dev-packages]

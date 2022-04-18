@@ -1,5 +1,6 @@
 import json
 import uuid
+import random
 
 from django.shortcuts import render
 from django.http import HttpResponse, StreamingHttpResponse
@@ -21,6 +22,12 @@ limit = 15
 corners: TL, TR, BL, BR
 """
 
+ACTION = [
+    [-1, -1], [-1, 0],[-1, 1],
+    [0, -1], [0, 0], [0, 1],
+    [1, -1], [-1, 0], [1, 1]
+]
+
 ZONE = [
     {"id": 1, "corners": [[5, 3], [5, 4], [16, 3], [16, 4]]},
     {"id": 2, "corners": [[5, 8], [5, 9], [16, 8], [16, 9]]},
@@ -36,11 +43,11 @@ def get_ZONE(location, size=1):
         temp = ZONE[i]
         if (
             temp["corners"][0][0] - size
-            < location["loc_y"]
-            < temp["corners"][2][0] + size
+            <= location["loc_y"]
+            <= temp["corners"][2][0] + size
             and temp["corners"][0][1] - size
-            < location["loc_x"]
-            < temp["corners"][1][1] + size
+            <= location["loc_x"]
+            <= temp["corners"][1][1] + size
         ):
             zone_id = i + 1
             break
@@ -133,7 +140,7 @@ def getLocationBySpan(request):
                 #     )
 
         for location in location_list:
-            location.product_id = get_ZONE(location)
+            location['product_id'] = get_ZONE(location)
             location["preSum"] = preSumResult[tracker_id]
 
         response["data"] = location_list
@@ -174,7 +181,6 @@ def stream_event(time_limit):
         while length > 0:
             _zone_id = get_ZONE(time_locations[length - 1])
             time_locations[length - 1]["product_id"] = _zone_id
-            print(time_locations[length - 1])
             length = length - 1
 
             # calculate presum for each tracker
@@ -204,6 +210,28 @@ def sse_test(request):
 
 # @api_view(['GET'])
 def sse(request):
-    print("sse")
     limit = int(request.GET.get("limit", 100))
     return StreamingHttpResponse(stream_event(limit), content_type="text/event-stream")
+
+
+
+def random_action(location):
+    loc_x = location['loc_x']
+    loc_y = location['loc_y']
+    
+    action_idx = random.randint(0, 8)
+    action = ACTION[action_idx]
+    
+    loc_x += action[1]
+    loc_y += action[0]
+
+    if loc_x < 0:
+        loc_x += 2
+    if loc_y < 0:
+        loc_y += 2    
+    if loc_x > 21:
+        loc_x -= 2    
+    if loc_y > 20:
+        loc_y -= 2
+    
+    return loc_x, loc_y

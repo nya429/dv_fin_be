@@ -100,6 +100,7 @@ def getLastActive(request):
 
 
 preSumResult = defaultdict(lambda: [])
+realtimePreSumResult = defaultdict(lambda: [])
 
 
 @api_view(["POST"])
@@ -109,13 +110,7 @@ def getLocationBySpan(request):
     tracker_id = data["tracker_id"]
     # tracker_id = 'c60'
     # initialize preSumResult
-    preSumResult[tracker_id] = [
-        {"table_id": 0, "preSum": [0]},
-        {"table_id": 1, "preSum": [0]},
-        {"table_id": 2, "preSum": [0]},
-        {"table_id": 3, "preSum": [0]},
-        {"table_id": 4, "preSum": [0]},
-    ]
+    preSumResult[tracker_id] = [[0], [0], [0], [0], [0]]
 
     response = {"Success": False}
 
@@ -129,15 +124,20 @@ def getLocationBySpan(request):
         # calculate presum
         for location in location_list:
             for i in range(len(preSumResult[tracker_id])):
-                if location["product_id"] == preSumResult[tracker_id][i]["table_id"]:
-                    preSumResult[tracker_id][i]["preSum"].append(
-                        preSumResult[tracker_id][i]["preSum"][-1] + 1
-                    )
-
+                if location["product_id"] == i:
+                    preSumResult[tracker_id][i].append(preSumResult[tracker_id][i] + 1)
                 else:
-                    preSumResult[tracker_id][i]["preSum"].append(
-                        preSumResult[tracker_id][i]["preSum"][-1]
-                    )
+                    preSumResult[tracker_id][i].append(preSumResult[tracker_id][i])
+
+                # if location["product_id"] == preSumResult[tracker_id][i]["table_id"]:
+                #     preSumResult[tracker_id][i]["preSum"].append(
+                #         preSumResult[tracker_id][i]["preSum"][-1] + 1
+                #     )
+
+                # else:
+                #     preSumResult[tracker_id][i]["preSum"].append(
+                #         preSumResult[tracker_id][i]["preSum"][-1]
+                #     )
 
         for location in location_list:
             location['product_id'] = get_ZONE(location)
@@ -182,6 +182,20 @@ def stream_event(time_limit):
             _zone_id = get_ZONE(time_locations[length - 1])
             time_locations[length - 1]["product_id"] = _zone_id
             length = length - 1
+
+            # calculate presum for each tracker
+            for tracker_id in tracker_ids:
+                if tracker_id not in realtimePreSumResult:
+                    realtimePreSumResult[tracker_id] = [[0], [0], [0], [0], [0]]
+                for i in range(len(preSumResult[tracker_id])):
+                    if time_locations[length - 1]["product_id"] == i:
+                        realtimePreSumResult[tracker_id][i].append(
+                            realtimePreSumResult[tracker_id][i] + 1
+                        )
+                    else:
+                        realtimePreSumResult[tracker_id][i].append(
+                            realtimePreSumResult[tracker_id][i]
+                        )
 
         time_locations_data = LocationSerializer(time_locations, many=True).data
 

@@ -133,7 +133,10 @@ def getLocationBySpan(request):
                 else:
                     preSumResult[tracker_id][i].append(preSumResult[tracker_id][i][-1])
                     print(preSumResult[tracker_id][i])
-            location["preSum"] = preSumResult[tracker_id][location["product_id"]]
+            location["preSum"] = [
+                preSumResult[tracker_id][i][location["id"]]
+                for i in range(len(preSumResult[tracker_id]))
+            ]
 
         response["data"] = location_list
         response["Success"] = True

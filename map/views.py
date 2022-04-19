@@ -129,10 +129,10 @@ def getLocationBySpan(request):
                     preSumResult[tracker_id][i].append(
                         preSumResult[tracker_id][i][-1] + 1
                     )
-                    print(preSumResult[tracker_id][i])
+                    # print(preSumResult[tracker_id][i])
                 else:
                     preSumResult[tracker_id][i].append(preSumResult[tracker_id][i][-1])
-                    print(preSumResult[tracker_id][i])
+                    # print(preSumResult[tracker_id][i])
             location["preSum"] = [
                 preSumResult[tracker_id][i][location["id"] - location_list[0]["id"]]
                 for i in range(1, len(preSumResult[tracker_id]))
@@ -191,6 +191,10 @@ def stream_event(time_limit):
                         realtimePreSumResult[tracker_id][i].append(
                             realtimePreSumResult[tracker_id][i][-1]
                         )
+            time_locations[length - 1]["preSum"] = [
+                realtimePreSumResult[tracker_id][i][time_idx]
+                for i in range(1, len(preSumResult[tracker_id]))
+            ]
 
         time_locations_data = LocationSerializer(time_locations, many=True).data
 

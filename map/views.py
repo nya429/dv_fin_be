@@ -104,7 +104,7 @@ realtimePreSumResult = dict()
 def getLocationBySpan(request):
     data = json.loads(request.body)
     tracker_id = data["tracker_id"]
-    # tracker_id = "c60"
+    # tracker_id = "c59"
 
     # initialize preSumResult
     if tracker_id not in preSumResult:
@@ -134,8 +134,8 @@ def getLocationBySpan(request):
                     preSumResult[tracker_id][i].append(preSumResult[tracker_id][i][-1])
                     print(preSumResult[tracker_id][i])
             location["preSum"] = [
-                preSumResult[tracker_id][i][location["id"]]
-                for i in range(len(preSumResult[tracker_id]))
+                preSumResult[tracker_id][i][location["id"] - location_list[0]["id"]]
+                for i in range(1, len(preSumResult[tracker_id]))
             ]
 
         response["data"] = location_list

@@ -129,10 +129,10 @@ def getLocationBySpan(request):
                     preSumResult[tracker_id][i].append(
                         preSumResult[tracker_id][i][-1] + 1
                     )
-                    print(preSumResult[tracker_id][i])
+                    # print(preSumResult[tracker_id][i])
                 else:
                     preSumResult[tracker_id][i].append(preSumResult[tracker_id][i][-1])
-                    print(preSumResult[tracker_id][i])
+                    # print(preSumResult[tracker_id][i])
             location["preSum"] = [
                 preSumResult[tracker_id][i][location["id"]]
                 for i in range(len(preSumResult[tracker_id]))
@@ -172,10 +172,13 @@ def stream_event(time_limit):
         time_locations = Location.objects.filter(
             time=time_stamp, tracker_id__in=tracker_ids
         ).values("tracker_id", "loc_x", "loc_y", "time", "product_id")
-        length = len(time_locations)
+
+        time_locations_data = LocationSerializer(time_locations, many=True).data
+
+        length = len(time_locations_data)
         while length > 0:
-            _zone_id = get_ZONE(time_locations[length - 1])
-            time_locations[length - 1]["product_id"] = _zone_id
+            _zone_id = get_ZONE(time_locations_data[length - 1])
+            time_locations_data[length - 1]["product_id"] = _zone_id
             length = length - 1
 
             # calculate presum for each tracker
@@ -183,7 +186,7 @@ def stream_event(time_limit):
                 if tracker_id not in realtimePreSumResult:
                     realtimePreSumResult[tracker_id] = [[0], [0], [0], [0], [0]]
                 for i in range(len(preSumResult[tracker_id])):
-                    if time_locations[length - 1]["product_id"] == i:
+                    if time_locations_data[length - 1]["product_id"] == i:
                         realtimePreSumResult[tracker_id][i].append(
                             realtimePreSumResult[tracker_id][i][-1] + 1
                         )
@@ -191,8 +194,6 @@ def stream_event(time_limit):
                         realtimePreSumResult[tracker_id][i].append(
                             realtimePreSumResult[tracker_id][i][-1]
                         )
-
-        time_locations_data = LocationSerializer(time_locations, many=True).data
 
         time_idx += 1
         yield f"data: {json.dumps(time_locations_data)}\n\n"

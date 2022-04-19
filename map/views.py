@@ -22,11 +22,7 @@ limit = 15
 corners: TL, TR, BL, BR
 """
 
-ACTION = [
-    [-1, -1], [-1, 0],[-1, 1],
-    [0, -1], [0, 0], [0, 1],
-    [1, -1], [-1, 0], [1, 1]
-]
+ACTION = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 0], [0, 1], [1, -1], [-1, 0], [1, 1]]
 
 ZONE = [
     {"id": 1, "corners": [[5, 3], [5, 4], [16, 3], [16, 4]]},
@@ -99,8 +95,8 @@ def getLastActive(request):
 """
 
 
-preSumResult = defaultdict(lambda: [])
-realtimePreSumResult = defaultdict(lambda: [])
+preSumResult = dict()
+realtimePreSumResult = dict()
 
 
 @api_view(["POST"])
@@ -108,9 +104,11 @@ realtimePreSumResult = defaultdict(lambda: [])
 def getLocationBySpan(request):
     data = json.loads(request.body)
     tracker_id = data["tracker_id"]
-    # tracker_id = 'c60'
+    # tracker_id = "c60"
+
     # initialize preSumResult
-    preSumResult[tracker_id] = [[0], [0], [0], [0], [0]]
+    if tracker_id not in preSumResult:
+        preSumResult[tracker_id] = [[0], [0], [0], [0], [0]]
 
     response = {"Success": False}
 
@@ -121,27 +119,21 @@ def getLocationBySpan(request):
 
         location_list = serializer.data
 
-        # calculate presum
         for location in location_list:
+            location["product_id"] = get_ZONE(location)
+
+            # calculate presum
             for i in range(len(preSumResult[tracker_id])):
+                # print(i)
                 if location["product_id"] == i:
-                    preSumResult[tracker_id][i].append(preSumResult[tracker_id][i] + 1)
+                    preSumResult[tracker_id][i].append(
+                        preSumResult[tracker_id][i][-1] + 1
+                    )
+                    print(preSumResult[tracker_id][i])
                 else:
-                    preSumResult[tracker_id][i].append(preSumResult[tracker_id][i])
-
-                # if location["product_id"] == preSumResult[tracker_id][i]["table_id"]:
-                #     preSumResult[tracker_id][i]["preSum"].append(
-                #         preSumResult[tracker_id][i]["preSum"][-1] + 1
-                #     )
-
-                # else:
-                #     preSumResult[tracker_id][i]["preSum"].append(
-                #         preSumResult[tracker_id][i]["preSum"][-1]
-                #     )
-
-        for location in location_list:
-            location['product_id'] = get_ZONE(location)
-            location["preSum"] = preSumResult[tracker_id]
+                    preSumResult[tracker_id][i].append(preSumResult[tracker_id][i][-1])
+                    print(preSumResult[tracker_id][i])
+            location["preSum"] = preSumResult[tracker_id][location["product_id"]]
 
         response["data"] = location_list
         response["Success"] = True
@@ -190,11 +182,11 @@ def stream_event(time_limit):
                 for i in range(len(preSumResult[tracker_id])):
                     if time_locations[length - 1]["product_id"] == i:
                         realtimePreSumResult[tracker_id][i].append(
-                            realtimePreSumResult[tracker_id][i] + 1
+                            realtimePreSumResult[tracker_id][i][-1] + 1
                         )
                     else:
                         realtimePreSumResult[tracker_id][i].append(
-                            realtimePreSumResult[tracker_id][i]
+                            realtimePreSumResult[tracker_id][i][-1]
                         )
 
         time_locations_data = LocationSerializer(time_locations, many=True).data
@@ -214,24 +206,23 @@ def sse(request):
     return StreamingHttpResponse(stream_event(limit), content_type="text/event-stream")
 
 
-
 def random_action(location):
-    loc_x = location['loc_x']
-    loc_y = location['loc_y']
-    
+    loc_x = location["loc_x"]
+    loc_y = location["loc_y"]
+
     action_idx = random.randint(0, 8)
     action = ACTION[action_idx]
-    
+
     loc_x += action[1]
     loc_y += action[0]
 
     if loc_x < 0:
         loc_x += 2
     if loc_y < 0:
-        loc_y += 2    
+        loc_y += 2
     if loc_x > 21:
-        loc_x -= 2    
+        loc_x -= 2
     if loc_y > 20:
         loc_y -= 2
-    
+
     return loc_x, loc_y

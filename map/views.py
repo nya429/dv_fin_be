@@ -194,6 +194,10 @@ def stream_event(time_limit):
                         realtimePreSumResult[tracker_id][i].append(
                             realtimePreSumResult[tracker_id][i][-1]
                         )
+            time_locations[length - 1]["preSum"] = [
+                realtimePreSumResult[tracker_id][i][time_idx]
+                for i in range(1, len(preSumResult[tracker_id]))
+            ]
 
         time_idx += 1
         yield f"data: {json.dumps(time_locations_data)}\n\n"
